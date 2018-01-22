@@ -19,6 +19,9 @@
  */
 class Post extends CActiveRecord
 {
+    const STATUS_DRAFT=1;
+    const STATUS_PUBLISHED=2;
+    const STATUS_ARCHIVED=3;
     /*
        Url for Post
     */
