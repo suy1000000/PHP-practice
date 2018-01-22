@@ -7,7 +7,7 @@ class PostController extends Controller
      * using two-column layout. See 'protected/views/layouts/column2.php'.
      */
     public $layout='//layouts/column2';
-
+    private $_model;
     /**
      * @return array action filters
      */
@@ -39,16 +39,49 @@ class PostController extends Controller
             ),
         );
     }
-
+    
     /**
      * Displays a particular model.
      * @param integer $id the ID of the model to be displayed
      */
+    /*
     public function actionView($id)
     {
         $this->render('view', array(
             'model'=>$this->loadModel($id),
         ));
+    }*/
+
+    public function actionView()
+    {
+        $post=$this->loadModel();
+        $comment=$this->newComment($post);
+
+        $this->render('view', array(
+            'model'=>$post,
+            'comment'=>$comment,
+        ));
+    }
+
+    protected function newComment($post)
+    {
+        $comment=new Comment;
+ 
+        if (isset($_POST['ajax']) && $_POST['ajax']==='comment-form') {
+            echo CActiveForm::validate($comment);
+            Yii::app()->end();
+        }
+ 
+        if (isset($_POST['Comment'])) {
+            $comment->attributes=$_POST['Comment'];
+            if ($post->addComment($comment)) {
+                if ($comment->status==Comment::STATUS_PENDING) {
+                    Yii::app()->user->setFlash('commentSubmitted', 'Thank you for your comment. Your comment will be posted once it is approved.');
+                }
+                $this->refresh();
+            }
+        }
+        return $comment;
     }
 
     /**
@@ -103,7 +136,7 @@ class PostController extends Controller
      * If deletion is successful, the browser will be redirected to the 'admin' page.
      * @param integer $id the ID of the model to be deleted
      */
-    public function actionDelete($id)
+    /*public function actionDelete($id)
     {
         $this->loadModel($id)->delete();
 
@@ -111,14 +144,48 @@ class PostController extends Controller
         if (!isset($_GET['ajax'])) {
             $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
         }
+    }*/
+    public function actionDelete()
+    {
+        if (Yii::app()->request->isPostRequest) {
+            //we only allow deletion via POST request
+            $this->loadModel()->delete();
+
+            if (!isset($_GET['ajax'])) {
+                $this->redirect(array('index'));
+            }
+        } else {
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+        }
     }
 
     /**
      * Lists all models.
      */
-    public function actionIndex()
+    /*public function actionIndex()
     {
         $dataProvider=new CActiveDataProvider('Post');
+        $this->render('index', array(
+            'dataProvider'=>$dataProvider,
+        ));
+    }*/
+    public function actionIndex()
+    {
+        $criteria= new CDbCriteria(array(
+            'condition'=>'status='.Post::STATUS_PUBLISHED,
+            'order'=>'update_time DESC',
+            'with'=>'commentCount',
+        ));
+        if (isset($_GET['tag'])) {
+            $criteria->addSearchCondition('tags', $_GET['tag']);
+        }
+        $dataProvider=new CActiveDataProvider('Post', array(
+            'pagination'=>array(
+                'pageSize'=>5,
+            ),
+            'criteria'=>$criteria,
+        ));
+
         $this->render('index', array(
             'dataProvider'=>$dataProvider,
         ));
@@ -147,6 +214,7 @@ class PostController extends Controller
      * @return Post the loaded model
      * @throws CHttpException
      */
+    /*
     public function loadModel($id)
     {
         $model=Post::model()->findByPk($id);
@@ -154,6 +222,24 @@ class PostController extends Controller
             throw new CHttpException(404, 'The requested page does not exist.');
         }
         return $model;
+    }*/
+    public function loadModel()
+    {
+        if ($this->_model === null) {
+            if (isset($_GET['id'])) {
+                if (Yii::app()->user->isGuest) {
+                    $condition='status='.Post::STATUS_PUBLISHED
+                        .' OR status='.Post::STATUS_ARCHIVED;
+                } else {
+                    $condition='';
+                    $this->_model=Post::model()->findByPk($_GET['id'], $condition);
+                }
+            }
+            if ($this->_model === null) {
+                throw new CHttpException(404, 'The requested page does not exist.');
+            }
+        }
+        return $this->_model;
     }
 
     /**

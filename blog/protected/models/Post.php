@@ -23,7 +23,7 @@ class Post extends CActiveRecord
     const STATUS_PUBLISHED=2;
     const STATUS_ARCHIVED=3;
 
-    private $_oldtags; 
+    private $_oldtags;
     /*
        Url for Post
     */
@@ -179,5 +179,26 @@ class Post extends CActiveRecord
     {
         parent::afterFind();
         $this->_oldTags=$this->tags;
+    }
+
+    /*
+    it first deletes all those comments whose post_id is the same as the ID of the deleted post; it then updates the tbl_tag table for the tags of the deleted post.
+    */
+    protected function afterDelete()
+    {
+        parent::afterDelete();
+        Comment::model()->deleteAll('post_id='.$this->id);
+        Tag::model()->updateFrequency($this->tags, '');
+    }
+
+    public function addComment($comment)
+    {
+        if (Yii::app()->params['commentNeedApproval']) {
+            $comment->status=Comment::STATUS_PENDING;
+        } else {
+            $comment->status=Comment::STATUS_APPROVED;
+        }
+        $comment->post_id=$this->id;
+        return $comment->save();
     }
 }
