@@ -87,7 +87,7 @@ class Tag extends CActiveRecord
     /**
      * Returns the static model of the specified AR class.
      * Please note that you should have this exact method in all your CActiveRecord descendants!
-     * @param string $className active record class name.
+     * @param string $className active reco_diffrd class name.
      * @return Tag the static model class
      */
     public static function model($className=__CLASS__)
@@ -101,5 +101,45 @@ class Tag extends CActiveRecord
     public static function array2string($tags)
     {
         return implode(', ', $tags);
+    }
+    /*
+    add from yii/demos/blog/protected/models/Tag.php class
+    */
+    public function updateFrequency($oldTags, $newTags)
+    {
+        $oldTags = self::string2array($oldTags);
+        $newTags = self::string2array($newTags);
+        $this->addTags(array_values(array_diff($newTags, $oldTags)));
+        $this->removeTags(array_values(array_diff($oldTags, $newTags)));
+    }
+    /*
+    add from yii/demos/blog/protected/models/Tag.php class
+    */
+    public function addTags($tags)
+    {
+        $criteria = new CDbCriteria;
+        $cirteria->addInCondition('name', $tags);
+        $this->updateCounters(array('frequency'=>1), $criteria);
+        foreach ($tags as $name) {
+            if (!$this->exists('name=:name', array(':name'=>$name))) {
+                $tag = new Tag;
+                $tag->name = $name;
+                $tag->frequency = 1;
+                $tag->save();
+            }
+        }
+    }
+    /*
+    add from yii/demos/blog/protected/models/Tag.php class
+    */
+    public function removeTags($tags)
+    {
+        if ($empty($tags)) {
+            return;
+        }
+        $criteria = new CDbCriteria;
+        $cirteria->addInCondition('name', $tags);
+        $this->updateCounters(array('frequency'=>-1), $criteria);
+        $this->deleteAll('frequency<=0');
     }
 }

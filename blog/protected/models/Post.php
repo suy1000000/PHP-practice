@@ -22,6 +22,8 @@ class Post extends CActiveRecord
     const STATUS_DRAFT=1;
     const STATUS_PUBLISHED=2;
     const STATUS_ARCHIVED=3;
+
+    private $_oldtags; 
     /*
        Url for Post
     */
@@ -144,5 +146,38 @@ class Post extends CActiveRecord
     public function normalizeTags($attribute, $params)
     {
         $this->tags=Tag::array2string(array_unique(Tag::string2array($this->tags)));
+    }
+    /*
+    automatically set some attributes (e.g. create_time, author_id) before a post is saved to the database
+    */
+    public function beforeSave()
+    {
+        if (parent::beforeSave()) {
+            if ($this->isNewRecord) {
+                $this->create_time=$this->update_time=time();
+                $this->author_id=Yii::app()->user->id;
+            } else {
+                $this->update_time=time();
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+    /*
+    We can do this work in the afterSave() method, which is automatically invoked by Yii after a post is successfully saved into the database.
+    */
+    public function afterSave()
+    {
+        parent::afterSave();
+        Tag::model()->updateFrequency($this->_oldTags, $this->tags);
+    }
+    /*
+    fterFind() is invoked automatically by Yii when an AR record is populated with the data from database
+    */
+    public function afterFind()
+    {
+        parent::afterFind();
+        $this->_oldTags=$this->tags;
     }
 }
