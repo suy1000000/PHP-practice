@@ -144,4 +144,15 @@ class Comment extends CActiveRecord
     {
         return $this->count('status='.self::STATUS_PENDING);
     }
+    /*
+    add from "Creating Recent Comments Portlet"
+    */
+    public function findRecentComments($limit = 10)
+    {
+        return $this->with('post')->findAll(array(
+            'condition'=>'t.status='.self::STATUS_APPROVED,
+            'order'=>'t.create_time DESC',
+            'limit'=>$limit,
+        ));
+    }
 }
