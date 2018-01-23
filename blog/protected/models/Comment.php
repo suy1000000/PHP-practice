@@ -129,4 +129,19 @@ class Comment extends CActiveRecord
             return false;
         }
     }
+    /*
+    add from Topic "Managing Comments"
+    */
+    public function approve()
+    {
+        $this->status=Comment::STATUS_APPROVED;
+        $this->update(array('status'));
+    }
+    /*
+    According to http://www.yiiframework.com/doc/blog/1.1/en/portlet.menu#c8515
+    */
+    public function getPendingCommentCount()
+    {
+        return $this->count('status='.self::STATUS_PENDING);
+    }
 }
