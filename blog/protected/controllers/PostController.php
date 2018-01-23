@@ -51,7 +51,9 @@ class PostController extends Controller
             'model'=>$this->loadModel($id),
         ));
     }*/
-
+    
+    /* Add from "Creating and Displaying Comments" Topics
+    */
     public function actionView()
     {
         $post=$this->loadModel();
@@ -62,7 +64,9 @@ class PostController extends Controller
             'comment'=>$comment,
         ));
     }
-
+    
+    /* Add from "Creating and Displaying Comments" Topics
+    */
     protected function newComment($post)
     {
         $comment=new Comment;
@@ -75,7 +79,7 @@ class PostController extends Controller
         if (isset($_POST['Comment'])) {
             $comment->attributes=$_POST['Comment'];
             if ($post->addComment($comment)) {
-                if ($comment->status==Comment::STATUS_PENDING) {
+                if ($comment->status == Comment::STATUS_PENDING) {
                     Yii::app()->user->setFlash('commentSubmitted', 'Thank you for your comment. Your comment will be posted once it is approved.');
                 }
                 $this->refresh();
@@ -101,7 +105,7 @@ class PostController extends Controller
                 $this->redirect(array('view','id'=>$model->id));
             }
         }
-
+       
         $this->render('create', array(
             'model'=>$model,
         ));
@@ -171,7 +175,7 @@ class PostController extends Controller
     }*/
     public function actionIndex()
     {
-        $criteria= new CDbCriteria(array(
+        $criteria=new CDbCriteria(array(
             'condition'=>'status='.Post::STATUS_PUBLISHED,
             'order'=>'update_time DESC',
             'with'=>'commentCount',
@@ -185,7 +189,6 @@ class PostController extends Controller
             ),
             'criteria'=>$criteria,
         ));
-
         $this->render('index', array(
             'dataProvider'=>$dataProvider,
         ));
@@ -197,7 +200,7 @@ class PostController extends Controller
     public function actionAdmin()
     {
         $model=new Post('search');
-        $model->unsetAttributes();  // clear any default values
+        //$model->unsetAttributes();  // clear any default values
         if (isset($_GET['Post'])) {
             $model->attributes=$_GET['Post'];
         }
@@ -232,8 +235,8 @@ class PostController extends Controller
                         .' OR status='.Post::STATUS_ARCHIVED;
                 } else {
                     $condition='';
-                    $this->_model=Post::model()->findByPk($_GET['id'], $condition);
                 }
+                $this->_model=Post::model()->findByPk($_GET['id'], $condition);
             }
             if ($this->_model === null) {
                 throw new CHttpException(404, 'The requested page does not exist.');

@@ -118,7 +118,7 @@ class Tag extends CActiveRecord
     public function addTags($tags)
     {
         $criteria = new CDbCriteria;
-        $cirteria->addInCondition('name', $tags);
+        $criteria->addInCondition('name', $tags);
         $this->updateCounters(array('frequency'=>1), $criteria);
         foreach ($tags as $name) {
             if (!$this->exists('name=:name', array(':name'=>$name))) {
@@ -134,11 +134,11 @@ class Tag extends CActiveRecord
     */
     public function removeTags($tags)
     {
-        if ($empty($tags)) {
+        if (empty($tags)) {
             return;
         }
         $criteria = new CDbCriteria;
-        $cirteria->addInCondition('name', $tags);
+        $criteria->addInCondition('name', $tags);
         $this->updateCounters(array('frequency'=>-1), $criteria);
         $this->deleteAll('frequency<=0');
     }

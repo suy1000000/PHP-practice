@@ -33,17 +33,6 @@ $this->menu=array(
         'author_id',*/
     ),
 )); ?>
-
-<?php if (!empty($_GET['tag'])) : ?>
-<h1> Posts Tagged With <i><?php echo CHtml::encode($_GET['tag']); ?></i></h1>
-<?php endif; ?>
-
-<?php $this->widget('zii.widgets.CListView', array(
-    'dataProvider'=>$dataProvider,
-    'itemView'=>'_view',
-    'template'=>"{items}\n{pager}",
-)); ?>
-
 <div id="comments">
     <?php if ($model->commentCount>=1) : ?>
         <h3>
@@ -66,4 +55,4 @@ $this->menu=array(
          'model'=>$comment,
      )); ?>
     <?php endif; ?>
-</div>
+</div><!-- comments -->

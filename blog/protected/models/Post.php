@@ -23,7 +23,7 @@ class Post extends CActiveRecord
     const STATUS_PUBLISHED=2;
     const STATUS_ARCHIVED=3;
 
-    private $_oldtags;
+    private $_oldTags;
     /*
        Url for Post
     */
@@ -77,7 +77,7 @@ class Post extends CActiveRecord
                 'condition'=>'comments.status='.Comment::STATUS_APPROVED,
                 'order'=>'comments.create_time DESC'),
             'commentCount' => array(self::STAT,'Comment','post_id',
-            'condition'=>'status='.Comment::STATUS_APPROVED),
+                'condition'=>'status='.Comment::STATUS_APPROVED),
         );
     }
 
@@ -198,7 +198,7 @@ class Post extends CActiveRecord
         } else {
             $comment->status=Comment::STATUS_APPROVED;
         }
-        $comment->post_id=$this->id;
+        $comment->post_id = $this->id;
         return $comment->save();
     }
 }
