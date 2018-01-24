@@ -29,6 +29,8 @@ return array(
         ),
 
     ),
+    //set DefaultController
+    'defaultController'=>'post',
 
     // application components
     'components'=>array(
@@ -39,17 +41,22 @@ return array(
         ),
 
         // uncomment the following to enable URLs in path-format
-        /*
+        
         'urlManager'=>array(
             'urlFormat'=>'path',
             'rules'=>array(
-                '<controller:\w+>/<id:\d+>'=>'<controller>/view',
-                '<controller:\w+>/<action:\w+>/<id:\d+>'=>'<controller>/<action>',
+                //'<controller:\w+>/<id:\d+>'=>'<controller>/view',
+                //'<controller:\w+>/<action:\w+>/<id:\d+>'=>'<controller>/<action>',
+                'post/<id:\d+>/<title:.*?>'=>'post/view',
+                'posts/<tag:.*?>'=>'post/index',
                 '<controller:\w+>/<action:\w+>'=>'<controller>/<action>',
             ),
         ),
-        */
-
+        //http://www.yiiframework.com/doc/blog/1.1/en/final.deployment
+        'cache'=>array(
+            'class'=>'CDbCache',
+        ),
+      
         // database settings are configured in database.php
         'db'=>require(dirname(__FILE__).'/database.php'),
 

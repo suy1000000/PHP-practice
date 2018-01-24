@@ -155,4 +155,26 @@ class Comment extends CActiveRecord
             'limit'=>$limit,
         ));
     }
+    /**
+     * @return string the hyperLink display for the current comment's author
+     * Add from yii\demos\blog\protected\models\Comment
+    */
+    public function getAuthorLink()
+    {
+        if (!empty($this->url)) {
+            return CHtml::link(CHtml::encode($this->author), $this->url);
+        } else {
+            return CHtml::encode($this->author);
+        }
+    }
+    /**
+     * Refernce http://www.yiiframework.com/forum/index.php/topic/71069-comment-and-its-behaviors-do-not-have-a-method-or-closure-named-geturl/
+    */
+    public function getUrl($post = null)
+    {
+        return Yii::app()->createUrl('post/view', array(
+            'id' =>$this->id,
+            'title' =>$this->post->title,
+         ));
+    }
 }
